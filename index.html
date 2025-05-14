@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎬 AI Movie Chatbot</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .chat-container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: rgba(30, 30, 30, 0.95);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 0 30px rgba(0, 255, 157, 0.2);
+      backdrop-filter: blur(10px);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #00ffae;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .chat-box {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+      padding-right: 10px;
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      margin: 10px 0;
+      padding: 12px 18px;
+      border-radius: 16px;
+      animation: slideUp 0.3s ease-out;
+      max-width: 90%;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+
+    .user {
+      background-color: #0057e7;
+      align-self: flex-end;
+      text-align: right;
+      margin-left: auto;
+    }
+
+    .bot {
+      background-color: #2e2e2e;
+      align-self: flex-start;
+      text-align: left;
+      margin-right: auto;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 12px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      font-size: 16px;
+      background: #f2f2f2;
+      color: #000;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #00ffae, #007bff);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px #00ffae;
+    }
+
+    .typing {
+      font-style: italic;
+      opacity: 0.7;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #00ffae;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <h2>🎥 Movie Recommendation Chatbot</h2>
+    <div class="chat-box" id="chat-box">
+      <div class="message bot">👋 Hello! I'm your movie assistant. Ask me about any movie or say hi!</div>
+    </div>
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Type your message here..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    function sendMessage() {
+      const userInput = document.getElementById("user-input");
+      const message = userInput.value.trim();
+      if (!message) return;
+
+      addMessage("user", message);
+      addTypingMessage();
+
+      fetch("/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message })
+      })
+      .then(res => res.json())
+      .then(data => {
+        removeTypingMessage();
+        addMessage("bot", data.response);
+      })
+      .catch(() => {
+        removeTypingMessage();
+        addMessage("bot", "😢 Something went wrong.");
+      });
+
+      userInput.value = "";
+    }
+
+    function addMessage(sender, text) {
+      const msg = document.createElement("div");
+      msg.classList.add("message", sender);
+      msg.innerHTML = text;
+      document.getElementById("chat-box").appendChild(msg);
+      document.getElementById("chat-box").scrollTop = 9999;
+    }
+
+    function addTypingMessage() {
+      const msg = document.createElement("div");
+      msg.classList.add("message", "bot");
+      msg.setAttribute("id", "typing");
+      msg.innerHTML = "<span class='typing'>Typing...</span>";
+      document.getElementById("chat-box").appendChild(msg);
+      document.getElementById("chat-box").scrollTop = 9999;
+    }
+
+    function removeTypingMessage() {
+      const typing = document.getElementById("typing");
+      if (typing) typing.remove();
+    }
+
+    // Optional: Press Enter to send
+    document.getElementById("user-input").addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
