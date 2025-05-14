@@ -1,4 +1,3 @@
-# Movie-Recommendation-Chatbot
 # 🎬 AI Movie Recommendation Chatbot
 
 A friendly, interactive chatbot built with **Flask**, **Python**, and the **Gemini API** that suggests movies based on titles or genres. It works offline with a CSV dataset and responds like a real assistant!
